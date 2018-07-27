@@ -608,9 +608,17 @@ public class ProtocolImpl implements Protocol
                 logger.trace("do query {}", httpPost.toString());
                 addOptions(queryParameters);
 
+                // Un-string the creds parameter back into proper JSON
+                String creds = "";
+                if (queryParameters.containsKey(CREDENTIALS))
+                {
+                    creds = ",\"creds\":" + queryParameters.get(CREDENTIALS);
+                    queryParameters.remove(CREDENTIALS);
+                }
 
-                String jsonParameters = JsonFactory.toJson(queryParameters);
-                StringEntity entity = new StringEntity(jsonParameters, ContentType.APPLICATION_JSON);
+                StringBuilder jsonParameters = new StringBuilder(JsonFactory.toJson(queryParameters));
+                jsonParameters.insert(jsonParameters.length() - 1, creds);
+                StringEntity entity = new StringEntity(jsonParameters.toString(), ContentType.APPLICATION_JSON);
 
 
                 httpPost.setEntity(entity);
